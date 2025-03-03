@@ -16,11 +16,14 @@ const Login = () => {
 
   return (
     <div className={styles['app-wrapper']}>
-      {' '}
-      {/* Apply the wrapper class here */}
-      <div className={`${styles.container} ${isSignUp ? styles['right-panel-active'] : ''}`}>
-        <div className={`${styles['form-container']} ${styles['sign-up-container']}`}>
-          <form action="#">
+      <div className={`${styles.containerLogin} ${isSignUp ? styles['right-panel-active'] : ''}`}>
+        <div className={`${styles['form-containerLogin']} ${styles['sign-up-container']}`}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              navigate('/dashboard')
+            }}
+          >
             <h1>Create Account</h1>
             <div className={styles['social-container']}>
               <a href="#" className={styles.social}>
@@ -34,15 +37,22 @@ const Login = () => {
               </a>
             </div>
             <span>or use your email for registration</span>
-            <input type="text" placeholder="Name" />
-            <input type="email" placeholder="Email" />
-            <input type="password" placeholder="Password" />
-            <button type="submit">Sign Up</button>
+            <input type="text" placeholder="Name" required />
+            <input type="email" placeholder="Email" required />
+            <input type="password" placeholder="Password" required />
+            <button className="mt-3" type="submit">
+              Sign Up
+            </button>
           </form>
         </div>
 
         <div className={`${styles['form-container']} ${styles['sign-in-container']}`}>
-          <form action="#">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              navigate('/dashboard')
+            }}
+          >
             <h1>Sign in</h1>
             <div className={styles['social-container']}>
               <a href="#" className={styles.social}>
@@ -56,12 +66,10 @@ const Login = () => {
               </a>
             </div>
             <span>or use your account</span>
-            <input type="email" placeholder="Email" />
-            <input type="password" placeholder="Password" />
+            <input type="email" placeholder="Email" required />
+            <input type="password" placeholder="Password" required />
             <a href="#">Forgot your password?</a>
-            <button type="submit" onClick={() => navigate('/dashboard')}>
-              Sign In
-            </button>
+            <button type="submit">Sign In</button>
           </form>
         </div>
 
