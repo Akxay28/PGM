@@ -21,33 +21,46 @@ const _nav = [
 
   {
     component: CNavItem,
-    name: 'All Users',
-    to: '/theme/AllUsers',
+    name: 'Clients',
+    to: '/manageClients',
     icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
   },
 
   {
     component: CNavItem,
-    name: 'CMS Pages',
-    to: '/theme/CMS',
+    name: 'Users',
+    to: '/users',
     icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
   },
 
   {
     component: CNavItem,
-    name: 'Email Templates',
-    to: '/theme/EmailTem',
+    name: 'Billing',
+    to: '/billing',
     icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
   },
 
   {
     component: CNavItem,
-    name: 'Social Media',
-    to: '/theme/SocialMedia',
+    name: 'Building',
+    to: '/building',
     icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
   },
 
+  {
+    component: CNavItem,
+    name: 'Room',
+    to: '/room',
+    icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+  },
 
+  {
+    component: CNavItem,
+    name: 'Bed',
+    to: '/bed',
+    icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+
+  }
 ]
 
 export default _nav
