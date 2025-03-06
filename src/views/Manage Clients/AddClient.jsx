@@ -5,11 +5,11 @@ import { useForm } from 'react-hook-form';
 
 const AddClient = () => {
     const { register, handleSubmit } = useForm();
-
+    const apiUrl = config.BASE_URL;
 
     const onSubmit = async (data) => {
         try {
-            const response = await axios.post('https://pgmapi.outrightsoftware.com/api/Client/Insert', data);
+            const response = await axios.post(`${apiUrl}/Client/Insert`, data);
             console.log(response.data, 'response.data on submit');
         } catch (error) {
             console.error('Error during submission:', error);

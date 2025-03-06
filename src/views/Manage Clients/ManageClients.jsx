@@ -1,16 +1,20 @@
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import config from '../../config';
 
 const ManageClients = () => {
-    const [searchQuery, setSearchQuery] = useState('');
-    const navigate = useNavigate()
+    const apiUrl = config.BASE_URL;
 
-    const [clients, setClients] = useState([
-        { id: 1, name: 'John Doe', email: 'john@example.com', primaryContact: '1234567890', isActive: true },
-        { id: 2, name: 'Jane Smith', email: 'jane@example.com', primaryContact: '0987654321', isActive: false },
-    ]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [clients, setClients] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);  // Current page state
+    const [itemsPerPage] = useState(5);  // Items per page state, you can change this to any number
+
+    const navigate = useNavigate();
 
     const toggleActiveStatus = (clientId) => {
+
         setClients((prevClients) =>
             prevClients.map((client) =>
                 client.id === clientId ? { ...client, isActive: !client.isActive } : client
@@ -20,7 +24,7 @@ const ManageClients = () => {
 
     // Add Client
     const handleAddClient = () => {
-        navigate('/addClient')
+        navigate('/addClient');
     };
 
     // Edit client
@@ -39,19 +43,39 @@ const ManageClients = () => {
         client.email.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    // Logic for pagination: Get current page clients
+    const indexOfLastClient = currentPage * itemsPerPage;
+    const indexOfFirstClient = indexOfLastClient - itemsPerPage;
+    const currentClients = filteredClients.slice(indexOfFirstClient, indexOfLastClient);
+
+    // Change page
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
     useEffect(() => {
         const fetchData = async () => {
-
+            const requestData = {
+                allRecords: true
+            };
             try {
-                const response = await axios.get('https://pgmapi.outrightsoftware.com/api/Client/List');
-                console.log(response.data);
+                const response = await axios.post(`${apiUrl}/Client/List`, requestData);
+
+                // Check if response was successful (status 200)
+                if (response.status === 200) {
+                    console.log('Client data:', response.data.records);
+                    setClients(response.data.records);
+                } else {
+                    console.log('Request failed with status:', response.status);
+                }
             } catch (err) {
-                console.log('Error fetching client data');
+                console.error('Error fetching client data:', err.response ? err.response.data : err.message);
             }
         };
 
         fetchData(); // Call the fetchData function
     }, []); // Empty dependency array ensures this runs once when the component mounts
+
+    // Calculate total pages
+    const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
 
     return (
         <>
@@ -84,8 +108,8 @@ const ManageClients = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredClients.length > 0 ? (
-                            filteredClients.map(client => (
+                        {currentClients.length > 0 ? (
+                            currentClients.map(client => (
                                 <tr key={client.id}>
                                     <td>{client.name}</td>
                                     <td>{client.email}</td>
@@ -113,6 +137,33 @@ const ManageClients = () => {
                         )}
                     </tbody>
                 </table>
+
+                {/* Pagination Controls */}
+                <div className="pagination">
+                    <button
+                        className="btn btn-secondary me-2"
+                        onClick={() => paginate(currentPage - 1)}
+                        disabled={currentPage === 1}
+                    >
+                        Previous
+                    </button>
+                    {Array.from({ length: totalPages }, (_, index) => (
+                        <button
+                            key={index + 1}
+                            className={`btn btn-secondary me-2 ${currentPage === index + 1 ? 'active' : ''}`}
+                            onClick={() => paginate(index + 1)}
+                        >
+                            {index + 1}
+                        </button>
+                    ))}
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => paginate(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                    >
+                        Next
+                    </button>
+                </div>
             </div>
         </>
     );

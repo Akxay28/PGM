@@ -8,7 +8,7 @@ import toast, { Toaster } from 'react-hot-toast';
 const Login = () => {
   const navigate = useNavigate();
   const { register, handleSubmit, reset } = useForm();
-  const [userName, setuserName] = React.useState('');
+  const apiUrl = config.BASE_URL;
 
   const onSubmit = async (data) => {
     const requestData = {
@@ -18,23 +18,23 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        'https://pgmapi.outrightsoftware.com/api/Auth/login',
+        `${apiUrl}/Auth/login`,
         requestData
       );
       console.log(response, 'response');
-
       console.log(response.data.data.token, 'response');
-      setuserName(response.data.data.firstName);
+      // Store token in localStorage
       localStorage.setItem('token', response.data.data.token);
-      const token = localStorage.getItem('token');
-      if (token) {
-        navigate('/dashboard');
-      }
+      // Set up axios to use the token in subsequent requests
+      // axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.data.token}`;
+      // Navigate to dashboard
+      navigate('/dashboard');
     } catch (error) {
       toast.error("Invalid Credentials")
       reset();
     }
   };
+  // };
 
   return (
 

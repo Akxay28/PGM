@@ -7,6 +7,20 @@ const Dashboard = () => {
   return (
     //   "userName": "hardik@outrightsoftware.com",
   // "password": "Admin@123",
+
+  // {
+  //   "pageSize": 0,
+  //   "pageIndex": 0,
+  //   "orderBy": [
+  //     "string"
+  //   ],
+  //   "searchCriterias": {
+  //     "additionalProp1": "string",
+  //     "additionalProp2": "string",
+  //     "additionalProp3": "string"
+  //   },
+  //   "allRecords": true
+  // }
     <>
       <div><Toaster /></div>
       <div className="container">
