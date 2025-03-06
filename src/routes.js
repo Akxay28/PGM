@@ -8,6 +8,7 @@ const Billing = React.lazy(() => import('./views/Billing/Billing'))
 const Building = React.lazy(() => import('./views/Building/Building'))
 const Room = React.lazy(() => import('./views/Room/Room'))
 const Bed = React.lazy(() => import('./views/Bed/Bed'))
+const AddClient = React.lazy(() => import('./views/Manage Clients/AddClient'))
  
 const routes = [
   { path: '/',    name: 'Login',  element: Login  },
@@ -19,6 +20,7 @@ const routes = [
   { path: '/building', name: 'Buidling', element: Building },
   { path: '/room', name: 'Room', element: Room },
   { path: '/bed', name: 'Bed', element: Bed },
+  { path: '/addClient', name: 'addClient', element: AddClient },
   
 ]
 

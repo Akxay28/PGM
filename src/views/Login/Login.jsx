@@ -21,7 +21,7 @@ const Login = () => {
         'https://pgmapi.outrightsoftware.com/api/Auth/login',
         requestData
       );
-      // console.log(response.data, 'response');
+      console.log(response, 'response');
 
       console.log(response.data.data.token, 'response');
       setuserName(response.data.data.firstName);
