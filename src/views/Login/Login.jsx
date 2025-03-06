@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import config from '../../config';
 
 const Login = () => {
   const navigate = useNavigate();

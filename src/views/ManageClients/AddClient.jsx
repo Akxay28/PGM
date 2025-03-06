@@ -2,6 +2,7 @@ import axios from 'axios';
 // import { set } from 'core-js/core/dict';
 import React, { use, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import config from '../../config';
 
 const AddClient = () => {
     const { register, handleSubmit } = useForm();

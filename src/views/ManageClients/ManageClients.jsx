@@ -29,7 +29,8 @@ const ManageClients = () => {
 
     // Edit client
     const handleEditClient = (clientId) => {
-        alert(`Edit client with ID: ${clientId}`);
+        // alert(`Edit client with ID: ${clientId}`);
+        navigate(`/editClient/${clientId}`);
     };
 
     // on change calling function for searching
@@ -51,6 +52,7 @@ const ManageClients = () => {
     // Change page
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+    // Fetch clients data from post api (Important)
     useEffect(() => {
         const fetchData = async () => {
             const requestData = {
@@ -116,7 +118,7 @@ const ManageClients = () => {
                                     <td>{client.primaryContact}</td>
                                     <td>
                                         <button
-                                            className="btn btn-info mr-2"
+                                            className="btn btn-info me-5"
                                             onClick={() => handleEditClient(client.id)}
                                         >
                                             Edit

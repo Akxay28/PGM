@@ -2,13 +2,14 @@ import React from 'react'
 
 const Login = React.lazy(() => import('./views/Login/Login'))
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
-const ManageClient = React.lazy(() => import('./views/Manage Clients/ManageClients'))
+const ManageClient = React.lazy(() => import('./views/ManageClients/ManageClients'))
 const Users = React.lazy(() => import('./views/Users/Users'))
 const Billing = React.lazy(() => import('./views/Billing/Billing'))
 const Building = React.lazy(() => import('./views/Building/Building'))
 const Room = React.lazy(() => import('./views/Room/Room'))
 const Bed = React.lazy(() => import('./views/Bed/Bed'))
-const AddClient = React.lazy(() => import('./views/Manage Clients/AddClient'))
+const AddClient = React.lazy(() => import('./views/ManageClients/AddClient'))
+const EditClient = React.lazy(() => import('./views/ManageClients/EditClient'))
  
 const routes = [
   { path: '/',    name: 'Login',  element: Login  },
@@ -21,6 +22,7 @@ const routes = [
   { path: '/room', name: 'Room', element: Room },
   { path: '/bed', name: 'Bed', element: Bed },
   { path: '/addClient', name: 'addClient', element: AddClient },
+  { path: '/editClient/:id', name: 'editClient', element: EditClient },
   
 ]
 
