@@ -10,11 +10,14 @@ const Room = React.lazy(() => import('./views/Room/Room'))
 const Bed = React.lazy(() => import('./views/Bed/Bed'))
 const AddClient = React.lazy(() => import('./views/ManageClients/AddClient'))
 const EditClient = React.lazy(() => import('./views/ManageClients/EditClient'))
- 
+const AddUsers = React.lazy(() => import('./views/Users/AddUsers'))
+const EditUsers = React.lazy(() => import('./views/Users/EditUsers'))
+const RoleId = React.lazy(() => import('./views/RoleID/RoleID'))
+
 const routes = [
-  { path: '/',    name: 'Login',  element: Login  },
+  { path: '/', name: 'Login', element: Login },
   // { path: '/Register/Login', exact: true, name: 'Register' },
-  { path: '/dashboard', name: 'Dashboard', element: Dashboard }, 
+  { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/manageClients', name: 'ManageClient', element: ManageClient },
   { path: '/users', name: 'Users', element: Users },
   { path: '/billing', name: 'Billing', element: Billing },
@@ -23,7 +26,9 @@ const routes = [
   { path: '/bed', name: 'Bed', element: Bed },
   { path: '/addClient', name: 'addClient', element: AddClient },
   { path: '/editClient/:id', name: 'editClient', element: EditClient },
-  
+  { path: '/addUsers', name: 'addUsers', element: AddUsers },
+  { path: '/editUsers/:id', name: 'editUsres', element: EditUsers },
+  { path: '/role', name: 'editUsres', element: RoleId },
 ]
 
 export default routes

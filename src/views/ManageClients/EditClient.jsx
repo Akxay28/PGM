@@ -48,7 +48,7 @@ const EditClient = () => {
             name: name,
             email: email,
             primaryContact: primaryContact,
-            secondaryContact: secondaryContact
+            secondaryContact: secondaryContact,
         };
 
         try {

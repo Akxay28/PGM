@@ -4,9 +4,11 @@ import React, { use, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import config from '../../config';
 import toast, { Toaster } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const AddClient = () => {
     const { register, handleSubmit } = useForm();
+    const navigate = useNavigate();
     const apiUrl = config.BASE_URL;
 
     const onSubmit = async (data) => {
@@ -22,12 +24,25 @@ const AddClient = () => {
         }
     };
 
-
     return (
         <>
             <div><Toaster /></div>
             <div className="container shadow bg-white p-5 rounded  ">
-                <h1 className="text-center mb-4">Add Client</h1>
+                <div className="container">
+                    <div className="row">
+                        <div className="col-md-6">
+                            <h2>Add Client</h2>
+                        </div>
+                        <div className="col-md-6">
+                            <button
+                                className="btn btn-primary float-end"
+                                onClick={() => navigate(-1)}
+                            >
+                                Back
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="mb-3">
                         <label htmlFor="client-name" className="form-label">Name *</label>
@@ -80,6 +95,7 @@ const AddClient = () => {
                         <button type="submit" className="btn btn-primary">Submit</button>
                     </div>
                 </form>
+
             </div>
         </>
     );

@@ -59,7 +59,12 @@ const _nav = [
     name: 'Bed',
     to: '/bed',
     icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
-
+  },
+  {
+    component: CNavItem,
+    name: 'Role',
+    to: '/role',
+    icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
   }
 ]
 
