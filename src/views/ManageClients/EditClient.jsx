@@ -1,13 +1,16 @@
 import React, { useEffect } from 'react'
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import config from '../../config';
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 
 const EditClient = () => {
     const { register, handleSubmit, setValue } = useForm();
+    const navigate = useNavigate();
     const { id } = useParams()
     // console.log(id, 'id');
+
     const apiUrl = config.BASE_URL;
 
     // fetching the data to get the id from api
@@ -40,23 +43,34 @@ const EditClient = () => {
 
     const onSubmit = async (data) => {
         const { name, email, primaryContact, secondaryContact } = data;
-        try {
-            console.log(id, 'id');
-            const response = await axios.put(`${apiUrl}/Client/Update`, {
-                name, email, primaryContact, secondaryContact,
-            });
 
-            // setMessage(`User updated: ${response.data.name}`);
+        const requestData = {
+            id: id,
+            name: name,
+            email: email,
+            primaryContact: primaryContact,
+            secondaryContact: secondaryContact
+        };
+
+        try {
+            const response = await axios.put(`${apiUrl}/Client/Update`, requestData);
+            console.log('Response from put:', response);
+            toast.success("Client updated successfully");
+            setTimeout(() => {
+                navigate('/manageClients');
+            }, 1500);
         } catch (error) {
-            // setMessage('An error occurred');
             if (error.response) {
-                setMessage(`Error: ${error.response.data.message}`);
+                console.log(`Error: ${error.response.data.message}`);
+                toast.error("Error updating client");
             }
         }
     };
 
+
     return (
         <>
+            <div><Toaster /></div>
             <div className="container shadow bg-white p-5 rounded  ">
                 <h1 className="text-center mb-4">Edit Client</h1>
                 <form onSubmit={handleSubmit(onSubmit)}>

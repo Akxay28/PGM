@@ -15,6 +15,8 @@ const ManageClients = () => {
 
     const toggleActiveStatus = (clientId) => {
 
+        
+
         setClients((prevClients) =>
             prevClients.map((client) =>
                 client.id === clientId ? { ...client, isActive: !client.isActive } : client
@@ -29,7 +31,7 @@ const ManageClients = () => {
 
     // Edit client
     const handleEditClient = (clientId) => {
-        // alert(`Edit client with ID: ${clientId}`);
+        console.log(`Edit client with ID: ${clientId}`);
         navigate(`/editClient/${clientId}`);
     };
 
@@ -125,7 +127,9 @@ const ManageClients = () => {
                                         </button>
                                         <button
                                             className={`btn ${client.isActive ? 'btn-success' : 'btn-warning'}`}
-                                            onClick={() => toggleActiveStatus(client.id)}
+                                            onClick={() => toggleActiveStatus(client.id)
+
+                                            }
                                         >
                                             {client.isActive ? 'Deactivate' : 'Activate'}
                                         </button>
