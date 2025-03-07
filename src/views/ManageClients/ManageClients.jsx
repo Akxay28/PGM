@@ -6,36 +6,38 @@ import toast, { Toaster } from 'react-hot-toast';
 
 const ManageClients = () => {
     const apiUrl = config.BASE_URL;
-    const { id } = useParams();
+    // const { id } = useParams();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [clients, setClients] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);  // Current page state
     const [itemsPerPage] = useState(5);  // Items per page state
     const [isDialogOpen, setDialogOpen] = useState(false);  // State for dialog
-    const [clientIdToChange, setClientIdToChange] = useState(null); // State to store clientId for status change
+    const [id, setid] = useState(null); // State to store clientId for status change
 
     const navigate = useNavigate();
 
     // Function to open the confirmation dialog
     const openDialog = (clientId) => {
-        setClientIdToChange(clientId);
+        setid(clientId);
         setDialogOpen(true);
     };
 
     // Function to close the confirmation dialog
     const closeDialog = () => {
         setDialogOpen(false);
-        setClientIdToChange(null);
+        setid(null);
     };
 
     // Function to toggle client active status (activate/deactivate)
     const toggleActiveStatus = async () => {
-        if (clientIdToChange) {
+        if (id) {
+            console.log(id, 'id');
+
             try {
                 const response = await axios.post(
                     `https://pgmapi.outrightsoftware.com/api/Client/ChangeStatus`,
-                    { clientId: clientIdToChange },
+                    { id: id },
                     {
                         headers: {
                             'Content-Type': 'application/json',
@@ -47,12 +49,11 @@ const ManageClients = () => {
                 // Update client list after toggling status
                 setClients((prevClients) =>
                     prevClients.map((client) =>
-                        client.id === clientIdToChange
+                        client.id === id
                             ? { ...client, isActive: !client.isActive }
                             : client
                     )
                 );
-
                 toast.success("Client status updated successfully!");
                 closeDialog(); // Close dialog after successful action
             } catch (error) {
