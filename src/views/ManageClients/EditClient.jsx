@@ -16,7 +16,6 @@ const EditClient = () => {
     // fetching the data to get the id from api
     useEffect(() => {
         const fetchData = async () => {
-
             try {
                 const response = await axios.get(`${apiUrl}/Client/GetById/${id}`);
 

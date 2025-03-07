@@ -51,6 +51,7 @@ const Login = () => {
                 name="username"
                 type="text"
                 autoComplete="off"
+                value={'hardik@outrightsoftware.com'}
                 {...register('userName', { required: true })}
               />
               <label>Username</label>
@@ -61,6 +62,7 @@ const Login = () => {
                 name="password"
                 type="password"
                 autoComplete="off"
+                value={'Admin@123'}
                 {...register('password', { required: true })}
               />
               <label>Password</label>

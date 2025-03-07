@@ -1,27 +1,64 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import config from '../../config';
+import toast, { Toaster } from 'react-hot-toast';
 
 const ManageClients = () => {
     const apiUrl = config.BASE_URL;
+    const { id } = useParams();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [clients, setClients] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);  // Current page state
-    const [itemsPerPage] = useState(5);  // Items per page state, you can change this to any number
+    const [itemsPerPage] = useState(5);  // Items per page state
+    const [isDialogOpen, setDialogOpen] = useState(false);  // State for dialog
+    const [clientIdToChange, setClientIdToChange] = useState(null); // State to store clientId for status change
 
     const navigate = useNavigate();
 
-    const toggleActiveStatus = (clientId) => {
+    // Function to open the confirmation dialog
+    const openDialog = (clientId) => {
+        setClientIdToChange(clientId);
+        setDialogOpen(true);
+    };
 
-        
+    // Function to close the confirmation dialog
+    const closeDialog = () => {
+        setDialogOpen(false);
+        setClientIdToChange(null);
+    };
 
-        setClients((prevClients) =>
-            prevClients.map((client) =>
-                client.id === clientId ? { ...client, isActive: !client.isActive } : client
-            )
-        );
+    // Function to toggle client active status (activate/deactivate)
+    const toggleActiveStatus = async () => {
+        if (clientIdToChange) {
+            try {
+                const response = await axios.post(
+                    `https://pgmapi.outrightsoftware.com/api/Client/ChangeStatus`,
+                    { clientId: clientIdToChange },
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    }
+                );
+                console.log(response.data, 'response.data on submit');
+
+                // Update client list after toggling status
+                setClients((prevClients) =>
+                    prevClients.map((client) =>
+                        client.id === clientIdToChange
+                            ? { ...client, isActive: !client.isActive }
+                            : client
+                    )
+                );
+
+                toast.success("Client status updated successfully!");
+                closeDialog(); // Close dialog after successful action
+            } catch (error) {
+                console.error('Error changing client status:', error);
+            }
+        }
     };
 
     // Add Client
@@ -31,7 +68,6 @@ const ManageClients = () => {
 
     // Edit client
     const handleEditClient = (clientId) => {
-        console.log(`Edit client with ID: ${clientId}`);
         navigate(`/editClient/${clientId}`);
     };
 
@@ -54,18 +90,14 @@ const ManageClients = () => {
     // Change page
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-    // Fetch clients data from post api (Important)
+    // Fetch clients data from post api
     useEffect(() => {
         const fetchData = async () => {
-            const requestData = {
-                allRecords: true
-            };
+            const requestData = { allRecords: true };
             try {
                 const response = await axios.post(`${apiUrl}/Client/List`, requestData);
 
-                // Check if response was successful (status 200)
                 if (response.status === 200) {
-                    console.log('Client data:', response.data.records);
                     setClients(response.data.records);
                 } else {
                     console.log('Request failed with status:', response.status);
@@ -83,6 +115,7 @@ const ManageClients = () => {
 
     return (
         <>
+            <div><Toaster /></div>
             <h2 className="display-4 mb-3">Manage Clients</h2>
             <div className="container">
                 <div className="row mb-4">
@@ -127,9 +160,7 @@ const ManageClients = () => {
                                         </button>
                                         <button
                                             className={`btn ${client.isActive ? 'btn-success' : 'btn-warning'}`}
-                                            onClick={() => toggleActiveStatus(client.id)
-
-                                            }
+                                            onClick={() => openDialog(client.id)}
                                         >
                                             {client.isActive ? 'Deactivate' : 'Activate'}
                                         </button>
@@ -171,6 +202,21 @@ const ManageClients = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Custom Confirmation Dialog */}
+            {isDialogOpen && (
+                <div className="confirm-dialog">
+                    <div className="confirm-content">
+                        <p>Are you sure you want to change the status of this client?</p>
+                        <button className="confirm-btn" onClick={toggleActiveStatus}>
+                            Yes
+                        </button>
+                        <button className="confirm-btn" onClick={closeDialog}>
+                            No
+                        </button>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
