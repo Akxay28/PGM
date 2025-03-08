@@ -27,7 +27,7 @@ const routes = [
   { path: '/addClient', name: 'addClient', element: AddClient },
   { path: '/editClient/:id', name: 'editClient', element: EditClient },
   { path: '/addUsers', name: 'addUsers', element: AddUsers },
-  { path: '/editUsers/:id', name: 'editUsres', element: EditUsers },
+  { path: '/editUsers/:id', name: 'editUsers', element: EditUsers },
   { path: '/role', name: 'editUsres', element: RoleId },
 ]
 

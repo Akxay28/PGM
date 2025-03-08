@@ -35,8 +35,8 @@ const Users = () => {
 
     // Edit Client
     const handleEditClient = (userId) => {
-        alert('Edit User ' + userId);
-        // navigate(`/editUsers/${userId}`);
+        // alert('Edit User ' + userId);
+        navigate(`/editUsers/${userId}`);
     };
 
     // Search Filter
@@ -74,6 +74,7 @@ const Users = () => {
             const requestData = { allRecords: true };
             try {
                 const response = await axios.post(`${apiUrl}/User/List`, requestData);
+                console.log('response: ', response);
                 if (response.status === 200) {
                     setUsers(response.data.records);
                 } else {

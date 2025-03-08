@@ -64,7 +64,8 @@ const RoleID = () => {
 
     // Add Client
     const handleRoleId = () => {
-        navigate('/addClient');
+        alert('IN progress he bhai badme ana');
+        // navigate('/addClient');
     };
 
     // Edit client

@@ -25,7 +25,7 @@ const Login = () => {
       console.log(response, 'response');
       console.log(response.data.data.token, 'response');
       // Store token in localStorage
-      localStorage.setItem('token', response.data.data.token);
+      localStorage.setItem('token', JSON.stringify(response.data.data));
       // Set up axios to use the token in subsequent requests
       // axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.data.token}`;
       // Navigate to dashboard
