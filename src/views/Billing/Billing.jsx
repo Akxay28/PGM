@@ -6,10 +6,9 @@ import toast, { Toaster } from 'react-hot-toast';
 
 const Billing = () => {
     const apiUrl = config.BASE_URL;
-    // const { id } = useParams();
 
     const [searchQuery, setSearchQuery] = useState('');
-    const [Billing, setBilling] = useState([]);
+    const [billing, setBilling] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);  // Current page state
     const [itemsPerPage] = useState(5);  // Items per page state
     const [isDialogOpen, setDialogOpen] = useState(false);  // State for dialog
@@ -18,8 +17,8 @@ const Billing = () => {
     const navigate = useNavigate();
 
     // Function to open the confirmation dialog
-    const openDialog = (billing) => {
-        setid(billing);
+    const openDialog = (billingId) => {
+        setid(billingId);
         setDialogOpen(true);
     };
 
@@ -36,7 +35,7 @@ const Billing = () => {
 
             try {
                 const response = await axios.post(
-                    `https://pgmapi.outrightsoftware.com/api/BillingProfile/Insert`, id,
+                    // `https://pgmapi.outrightsoftware.com/api/BillingProfile/Insert`, id,
                     {
                         headers: {
                             'Content-Type': 'application/json',
@@ -48,16 +47,17 @@ const Billing = () => {
 
                 // Update RoleId list after toggling status
                 setBilling((prevBilling) =>
-                    prevBilling.map((billing) =>
-                        billing.id === id
-                            ? { ...billing, isActive: !billing.isActive }
-                            : billing
+                    prevBilling.map((item) =>
+                        item.id === id
+                            ? { ...item, isActive: !item.isActive }
+                            : item
                     )
                 );
-                toast.success("Client status updated successfully!");
+                toast.success("Billing status updated successfully!");
                 closeDialog(); // Close dialog after successful action
             } catch (error) {
-                console.error('Error changing client status:', error);
+                console.error('Error changing Billing status:', error);
+                toast.error("Failed to update Billing status!");
             }
         }
     };
@@ -69,8 +69,8 @@ const Billing = () => {
 
     // Edit Billing
     const handleEditBilling = (BillingId) => {
-        alert('IN progress he bhai badme ana');
-        // navigate(`/editClient/${BillingId}`);
+        // alert('IN progress he bhai badme ana');
+        navigate(`/editBilling/${BillingId}`);
     };
 
     // on change calling function for searching
@@ -78,13 +78,14 @@ const Billing = () => {
         setSearchQuery(e.target.value);
     };
 
-    // Filter clients with Searching
-    const filteredBilling = Billing.filter(billing =>
-        billing.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        billing.email.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Filter billings with Searching - improved to handle null/undefined values
+    const filteredBilling = billing.filter(item => {
+        const nameMatch = item.name && item.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const gstMatch = item.gstNumber && item.gstNumber.toLowerCase().includes(searchQuery.toLowerCase());
+        return nameMatch || gstMatch;
+    });
 
-    // Logic for pagination: Get current page clients
+    // Logic for pagination: Get current page items
     const indexOfLastBilling = currentPage * itemsPerPage;
     const indexOfFirstBilling = indexOfLastBilling - itemsPerPage;
     const currentBilling = filteredBilling.slice(indexOfFirstBilling, indexOfLastBilling);
@@ -92,26 +93,46 @@ const Billing = () => {
     // Change page
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-    // Fetch clients data from post api
+    // Fetch billing data from post api
     useEffect(() => {
         const fetchData = async () => {
             const requestData = { allRecords: true };
-            try {
-                const response = await axios.post(`${apiUrl}/BillingProfile/List`, requestData);
-                console.log(response, 'response in listing');
 
-                // if (response.status === 200) {
-                //     setBilling(response.data.records);
-                // } else {
-                //     console.log('Request failed with status:', response.status);
-                // }
+            // Extract the token from local storage
+            const getLocalData = JSON.parse(localStorage.getItem('token'));
+            const token = getLocalData.token;
+            try {
+                const response = await axios.post(`${apiUrl}/BillingProfile/List`, requestData, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                // console.log(response.data.records, 'response in listing');
+
+                // Set the billing data to state
+                if (response.status === 200) {
+                    if (response.data.records && Array.isArray(response.data.records)) {
+                        setBilling(response.data.records);
+                    } else if (Array.isArray(response.data)) {
+                        setBilling(response.data);
+                    } else {
+                        console.error("Unexpected API response structure", response.data);
+                        setBilling([]);
+                    }
+                } else {
+                    console.log('Request failed with status:', response.status);
+                }
             } catch (err) {
                 console.error('Error fetching Billing data:', err.response ? err.response.data : err.message);
+                toast.error("Failed to load billing data!");
             }
         };
 
         fetchData(); // Call the fetchData function
     }, []); // Empty dependency array ensures this runs once when the component mounts
+
+
 
     // Calculate total pages
     const totalPages = Math.ceil(filteredBilling.length / itemsPerPage);
@@ -126,7 +147,7 @@ const Billing = () => {
                         <input
                             type="text"
                             className="form-control"
-                            placeholder="Search Clients"
+                            placeholder="Search by Name or GST Number"
                             value={searchQuery}
                             onChange={handleSearchChange}
                         />
@@ -141,45 +162,40 @@ const Billing = () => {
                 <table className="table">
                     <thead>
                         <tr>
-                            <th>Id</th>
                             <th>Name</th>
-                            <th>Description</th>
-                            <th>Created Date</th>
+                            <th>GST Number</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {currentBilling.length > 0 ? (
-                            currentBilling.map(Billing => (
-                                <tr key={Billing.id}>
-                                    <td>{Billing.id}</td>
-                                    <td>{Billing.name}</td>
-                                    <td>{Billing.description}</td>
-                                    <td>{Billing.createdDate}</td>
+                            currentBilling.map(item => (
+                                <tr key={item.id}>
+                                    <td>{item.name}</td>
+                                    <td>{item.gstNumber}</td>
                                     <td>
                                         <button
-                                            className="btn btn-info me-5"
-                                            onClick={() => handleEditBilling(Billing.id)}
+                                            className="btn btn-info me-2"
+                                            onClick={() => handleEditBilling(item.id)}
                                         >
                                             Edit
                                         </button>
                                         <button
-                                            className={`btn ${Billing.isActive ? 'btn-success' : 'btn-warning'}`}
-                                            onClick={() => openDialog(Billing.id)}
+                                            className={`btn ${item.isActive ? 'btn-success' : 'btn-warning'}`}
+                                            onClick={() => openDialog(item.id)}
                                         >
-                                            {Billing.isActive ? 'Deactivate' : 'Activate'}
+                                            {item.isActive ? 'Deactivate' : 'Activate'}
                                         </button>
                                     </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="5" className="text-center">No Billings found</td>
+                                <td colSpan="3" className="text-center">No Billings found</td>
                             </tr>
                         )}
                     </tbody>
                 </table>
-
                 {/* Pagination Controls */}
                 <div className="pagination">
                     <button
@@ -212,7 +228,7 @@ const Billing = () => {
             {isDialogOpen && (
                 <div className="confirm-dialog">
                     <div className="confirm-content">
-                        <p>Are you sure you want to change the status of this RoleId?</p>
+                        <p>Are you sure you want to change the status of this billing profile?</p>
                         <button className="confirm-btn" onClick={toggleActiveStatus}>
                             Yes
                         </button>

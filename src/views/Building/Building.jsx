@@ -16,23 +16,33 @@ const Building = () => {
     const navigate = useNavigate();
 
     // Fetch buildings data
-    useEffect(() => {
-        const fetchBuildings = async () => {
-            const requestData = { allRecords: true };
-            try {
-                const response = await axios.post(`${apiUrl}/Building/List`, requestData);
-                console.log("Full API Response:", response.data);
-                if (response.status === 200 && response.data.records) {
-                    console.log("Full API Response.data.records:", response.data.records);
+    const fetchBuildings = async () => {
+        // Extract the token from local storage
+        const getLocalData = JSON.parse(localStorage.getItem('token'));
+        const token = getLocalData.token;
 
-                    // setBuildings(response.data.records);
-                } else {
-                    console.log('Unexpected response format:', response.data);
+        const requestData = { allRecords: true };
+        try {
+            const response = await axios.post(`${apiUrl}/Building/List`, requestData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
-            } catch (err) {
-                console.error('Error fetching building data:', err.response ? err.response.data : err.message);
+            });
+            console.log("Full API Response:", response.data);
+            if (response.status === 200 && response.data.records) {
+                console.log("Full API Response.data.records:", response.data.records);
+                setBuildings(response.data.records);
+            } else {
+                console.log('Unexpected response format:', response.data);
             }
-        };
+        } catch (err) {
+            console.error('Error fetching building data:', err.response ? err.response.data : err.message);
+            toast.error("Failed to fetch buildings");
+        }
+    };
+
+    useEffect(() => {
         fetchBuildings();
     }, []);
 
@@ -44,10 +54,18 @@ const Building = () => {
     const toggleActiveStatus = async () => {
         if (buildingIdToChange) {
             try {
+                const getLocalData = JSON.parse(localStorage.getItem('token'));
+                const token = getLocalData.token;
+
                 await axios.post(
                     `${apiUrl}/Building/ChangeStatus`,
                     { BuildingId: buildingIdToChange },
-                    { headers: { 'Content-Type': 'application/json' } }
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
                 );
 
                 toast.success("Building status updated successfully!");
@@ -55,12 +73,17 @@ const Building = () => {
                 fetchBuildings();
             } catch (error) {
                 console.error('Error changing building status:', error);
+                toast.error("Failed to update building status");
             }
         }
     };
 
     const handleAddBuilding = () => {
         navigate('/addBuilding');
+    };
+
+    const navigateToRooms = (buildingId) => {
+        navigate(`/building/${buildingId}/rooms`);
     };
 
     const handleSearchChange = (e) => {
@@ -115,16 +138,22 @@ const Building = () => {
                             currentBuildings.map(building => (
                                 <tr key={building.id}>
                                     <td>{building.name}</td>
-                                    <td>{building.billingProfile}</td>
+                                    <td>{building.billingProfile?.name || 'N/A'}</td>
                                     <td>
                                         <button
-                                            className="btn btn-info me-3"
+                                            className="btn btn-secondary me-2"
+                                            onClick={() => navigateToRooms(building.id)}
+                                        >
+                                            Rooms
+                                        </button>
+                                        <button
+                                            className="btn btn-info me-2"
                                             onClick={() => navigate(`/editBuilding/${building.id}`)}
                                         >
                                             Edit
                                         </button>
                                         <button
-                                            className={`btn ${building.isActive ? 'btn-success' : 'btn-warning'}`}
+                                            className={`btn ${building.isActive ? 'btn-danger' : 'btn-success'}`}
                                             onClick={() => {
                                                 setBuildingIdToChange(building.id);
                                                 setDialogOpen(true);
@@ -171,6 +200,27 @@ const Building = () => {
                     </div>
                 )}
             </div>
+
+            {/* Confirmation Dialog */}
+            {isDialogOpen && (
+                <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Confirm Status Change</h5>
+                                <button type="button" className="btn-close" onClick={closeDialog}></button>
+                            </div>
+                            <div className="modal-body">
+                                <p>Are you sure you want to change the status of this building?</p>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={closeDialog}>Cancel</button>
+                                <button type="button" className="btn btn-primary" onClick={toggleActiveStatus}>Confirm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

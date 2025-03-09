@@ -35,14 +35,12 @@ const AddBuilding = () => {
 
             // Include the token in the request headers
             const response = await axios.post(
-                `https://pgmapi.outrightsoftware.com/api/Building/Insert`,
-                requestData
-                // ,{
-                //     headers: {
-                //         'Authorization': `Bearer ${token}`,
-                //         'Content-Type': 'application/json'
-                //     }
-                // }
+                `https://pgmapi.outrightsoftware.com/api/Building/Insert`, requestData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            }
             );
 
             console.log(response.data, 'response.data on submit');

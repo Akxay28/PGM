@@ -6,7 +6,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 const AddBilling = () => {
-    const { register, handleSubmit } = useForm();
+    const { register, handleSubmit, formState: { errors } } = useForm();
     const apiUrl = config.BASE_URL;
     const [cities, setCities] = useState([]);
     const navigate = useNavigate();
@@ -57,12 +57,13 @@ const AddBilling = () => {
         try {
             const response = await axios.post(`${apiUrl}/BillingProfile/Insert`, requestData);
             console.log(response.data, 'response.data on submit');
-            toast.success("Client updated successfully");
+            toast.success("Billing Created successfully");
             setTimeout(() => {
-                // navigate('/building');
+                navigate('/billing');
             }, 1500);
         } catch (error) {
             console.error('Error during submission:', error);
+            toast.error("Error updating client information");
         }
     };
 
@@ -117,7 +118,6 @@ const AddBilling = () => {
                                 <option disabled>Loading cities...</option>
                             )}
                         </select>
-
                     </div>
 
                     <div className="mb-3">
@@ -127,8 +127,15 @@ const AddBilling = () => {
                             id="pincode"
                             className="form-control border border-dark"
                             required
-                            {...register('pincode', { required: true })}
+                            {...register('pincode', {
+                                required: true,
+                                pattern: {
+                                    value: /^[1-9][0-9]{5}$/,
+                                    message: 'Invalid Pincode format. Should be 6 digits and not start with 0'
+                                }
+                            })}
                         />
+                        {errors.pincode && <div className="text-danger mt-1">{errors.pincode.message}</div>}
                     </div>
 
                     <div className="mb-3">
@@ -137,8 +144,14 @@ const AddBilling = () => {
                             type="text"
                             id="gstNumber"
                             className="form-control border border-dark"
-                            {...register('gstNumber')}
+                            {...register('gstNumber', {
+                                pattern: {
+                                    value: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
+                                    message: 'Invalid GST Number format'
+                                }
+                            })}
                         />
+                        {errors.gstNumber && <div className="text-danger mt-1">{errors.gstNumber.message}</div>}
                     </div>
 
                     <div className="text-start mt-2">
