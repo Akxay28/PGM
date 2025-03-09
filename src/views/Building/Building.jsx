@@ -83,7 +83,8 @@ const Building = () => {
     };
 
     const navigateToRooms = (buildingId) => {
-        navigate(`/building/${buildingId}/rooms`);
+        // navigate(`/building/${buildingId}/room`);
+        navigate(`/room/${buildingId}`);
     };
 
     const handleSearchChange = (e) => {
