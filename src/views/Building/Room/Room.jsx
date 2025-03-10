@@ -110,12 +110,17 @@ const Room = () => {
         return roomTypes[roomTypeId] || 'Unknown';
     };
 
-    // Fetch data when component mounts
+    // Fetch data when component mounts and set the building filter if ID is provided
     useEffect(() => {
         fetchRooms();
         fetchBuildings();
         fetchBillingProfiles();
-    }, []);
+
+        // Set the selected building to the ID from the URL if it exists
+        if (id) {
+            setSelectedBuilding(id);
+        }
+    }, [id]);
 
     const closeDialog = () => {
         setDialogOpen(false);
@@ -175,8 +180,12 @@ const Room = () => {
     };
 
     const handleAddRoom = () => {
-        alert('In progress, come back later');
-        // navigate('/addRoom');
+        // Navigate to add room with building ID pre-selected if available
+        if (selectedBuilding) {
+            navigate(`/addRoom?buildingId=${selectedBuilding}`);
+        } else {
+            navigate('/addRoom');
+        }
     };
 
     const handleSearchChange = (e) => {

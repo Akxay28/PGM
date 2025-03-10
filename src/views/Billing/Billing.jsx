@@ -29,15 +29,23 @@ const Billing = () => {
     };
 
     // Function to toggle client active status (activate/deactivate)
+
     const toggleActiveStatus = async () => {
         if (id) {
             console.log(id, 'id');
 
             try {
+                // Get the token from localStorage
+                const getLocalData = JSON.parse(localStorage.getItem('token'));
+                const token = getLocalData.token;
+
+                // Using the correct API endpoint for changing status
                 const response = await axios.post(
-                    // `https://pgmapi.outrightsoftware.com/api/BillingProfile/Insert`, id,
+                    `${apiUrl}/BillingProfile/ChangeStatus`,
+                    { id: id },  // Send the ID in the request body
                     {
                         headers: {
+                            'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json',
                         }
                     }
@@ -45,7 +53,7 @@ const Billing = () => {
 
                 console.log(response, 'response.data on submit');
 
-                // Update RoleId list after toggling status
+                // Update billing list after toggling status
                 setBilling((prevBilling) =>
                     prevBilling.map((item) =>
                         item.id === id
@@ -61,7 +69,6 @@ const Billing = () => {
             }
         }
     };
-
     // Add Billing
     const handleBilling = () => {
         navigate('/addBilling');

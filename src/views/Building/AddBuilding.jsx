@@ -35,7 +35,7 @@ const AddBuilding = () => {
 
             // Include the token in the request headers
             const response = await axios.post(
-                `https://pgmapi.outrightsoftware.com/api/Building/Insert`, requestData, {
+                `${apiUrl}/Building/Insert`, requestData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -66,6 +66,35 @@ const AddBuilding = () => {
         }
     };
 
+    // Fetch billing profiles on component mount
+    useEffect(() => {
+        const fetchBillingProfiles = async () => {
+            try {
+                const getLocalData = JSON.parse(localStorage.getItem('token'));
+                const token = getLocalData.token;
+
+                const response = await axios.post(`${apiUrl}/BillingProfile/List`, { allRecords: true }, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                console.log(response.data, 'response.data for billing profiles');
+
+                // Filter billing profiles to only include active ones (isActive === true)
+                const allProfiles = response.data.records || [];
+                const activeProfiles = allProfiles.filter(profile => profile.isActive === true);
+                setBillingProfiles(activeProfiles);
+
+            } catch (error) {
+                console.error('Error fetching billing profiles:', error);
+                toast.error("Failed to fetch billing profiles");
+            }
+        };
+
+        fetchBillingProfiles();
+    }, []);
+
     return (
         <>
             <div><Toaster /></div>
@@ -87,13 +116,20 @@ const AddBuilding = () => {
                     {/* Billing Profile id */}
                     <div className="mb-3">
                         <label htmlFor="billingProfileId" className="form-label">Billing Profile ID *</label>
-                        <input
-                            type="text"
+                        <select
                             id="billingProfileId"
-                            className="form-control border border-dark"
+                            className="form-select border border-dark"
                             required
                             {...register('billingProfileId', { required: true })}
-                        />
+                        >
+                            <option value="">Select Billing Profile</option>
+                            {billingProfiles.map((profile) => (
+                                <option key={profile.id} value={profile.id}>{profile.name}</option>
+                            ))}
+                        </select>
+                        {billingProfiles.length === 0 && (
+                            <small className="text-muted">No active billing profiles available</small>
+                        )}
                     </div>
 
                     {/* Remarks */}

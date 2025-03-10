@@ -44,7 +44,12 @@ const AddRoom = () => {
 
                 if (billingResponse.status === 200 && billingResponse.data.records) {
                     console.log("Billing profiles data:", billingResponse.data.records);
-                    setBillingProfiles(billingResponse.data.records);
+
+                    // Filter billing profiles to only include active ones
+                    const allProfiles = billingResponse.data.records;
+                    const activeProfiles = allProfiles.filter(profile => profile.isActive === true);
+
+                    setBillingProfiles(activeProfiles);
                 }
 
                 setLoading(false);
@@ -93,8 +98,9 @@ const AddRoom = () => {
             console.log('API response:', response.data);
             toast.success("Room added successfully");
             setTimeout(() => {
-                // navigate('/rooms');
+                navigate('/rooms');
             }, 1500);
+
         } catch (error) {
             console.error('Error during submission:', error.response ? error.response.data : error);
 
@@ -199,7 +205,7 @@ const AddRoom = () => {
                                         <option key={profile.id} value={profile.id}>{profile.name}</option>
                                     ))
                                 ) : (
-                                    <option disabled>No billing profiles available</option>
+                                    <option disabled>No active billing profiles available</option>
                                 )}
                             </select>
                         </div>
@@ -210,8 +216,7 @@ const AddRoom = () => {
                                 id="remarks"
                                 className="form-control border border-dark"
                                 rows="3"
-                                required
-                                {...register('remarks', { required: true })}
+                                {...register('remarks')}
                             ></textarea>
                         </div>
 

@@ -139,7 +139,7 @@ const Building = () => {
                             currentBuildings.map(building => (
                                 <tr key={building.id}>
                                     <td>{building.name}</td>
-                                    <td>{building.billingProfileId || 'N/A'}</td>
+                                    <td>{building.billingProfile.name || 'N/A'}</td>
                                     <td>
                                         <button
                                             className="btn btn-secondary me-2"
