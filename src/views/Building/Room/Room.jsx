@@ -270,12 +270,9 @@ const Room = () => {
                                     <td>{getBillingProfileName(room.billingProfileId)}</td>
                                     <td>{room.maxOccupancy || 'N/A'}</td>
                                     <td>
-                                        <button
-                                            className="btn btn-info"
-                                            onClick={() => navigate(`/editRoom/${room.id}`)}
-                                        >
-                                            Edit
-                                        </button>
+                                        <button className={`btn btn-success me-2`}> Bed</button>
+
+                                        <button className="btn btn-info" onClick={() => navigate(`/editRoom/${room.id}`)}>Edit</button>
                                     </td>
                                     <td>
                                         <button>active</button>
