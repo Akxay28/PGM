@@ -6,10 +6,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
 const EditRoom = () => {
-    const { id } = useParams();  // Get the room ID from the URL params
     const { register, handleSubmit, setValue, formState: { errors } } = useForm();
     const apiUrl = config.BASE_URL;
     const navigate = useNavigate();
+    const { id } = useParams(); // Get the room ID from the URL params
     const [buildings, setBuildings] = useState([]);
     const [billingProfiles, setBillingProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -21,7 +21,6 @@ const EditRoom = () => {
             const token = getLocalData.token;
 
             const requestData = { allRecords: true };
-
             try {
                 // Fetch buildings
                 const buildingsResponse = await axios.post(`${apiUrl}/Building/List`, requestData, {
@@ -44,51 +43,70 @@ const EditRoom = () => {
                 });
 
                 if (billingResponse.status === 200 && billingResponse.data.records) {
+                    // Filter billing profiles to only include active ones
                     const allProfiles = billingResponse.data.records;
                     const activeProfiles = allProfiles.filter(profile => profile.isActive === true);
 
                     setBillingProfiles(activeProfiles);
                 }
 
-                // Fetch existing room data
-                const roomResponse = await axios.get(`${apiUrl}/Room/Get/${id}`, {
+                // Fetch the room details
+                const roomResponse = await axios.get(`${apiUrl}/Room/GetById/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
                 });
 
-                if (roomResponse.status === 200 && roomResponse.data) {
-                    const roomData = roomResponse.data;
-                    // Prefill the form with the room data
-                    setValue('name', roomData.name);
-                    setValue('roomType', roomData.roomType.toString());
-                    setValue('maxOccupancy', roomData.maxOccupancy);
-                    setValue('buildingId', roomData.buildingId.toString());
-                    setValue('billingProfileId', roomData.billingProfileId ? roomData.billingProfileId.toString() : '');
-                    setValue('remarks', roomData.remarks);
+                console.log('Room response:', roomResponse.data);
+
+                if (roomResponse.status === 200 && roomResponse.data && roomResponse.data.records) {
+                    const roomData = roomResponse.data.records[0];
+                    // Prepopulate form fields with room data
+                    setValue("name", roomData.name || '');
+
+                    // Add null checks for these potentially undefined values
+                    setValue("roomType", roomData.roomType !== undefined ? roomData.roomType.toString() : '');
+                    setValue("maxOccupancy", roomData.maxOccupancy || '');
+                    setValue("buildingId", roomData.buildingId !== undefined ? roomData.buildingId.toString() : '');
+                    setValue("billingProfileId", roomData.billingProfileId ? roomData.billingProfileId.toString() : '');
+                    setValue("remarks", roomData.remarks || '');
+                } else {
+                    toast.error(`Room not found with ID: ${id}`);
                 }
 
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching data:', err.response ? err.response.data : err.message);
-                toast.error("Failed to fetch data");
+
+                // Additional debug logs for toString errors
+                if (err.message && err.message.includes("toString")) {
+                    console.error('toString error on data:', err);
+                }
+
+                // Display specific error message if available
+                if (err.response && err.response.status === 404) {
+                    toast.error(`Room with ID ${id} not found.`);
+                } else {
+                    toast.error("Failed to fetch data");
+                }
+
                 setLoading(false);
             }
         };
 
         fetchData();
-    }, [apiUrl, id]);
+    }, [id, apiUrl, setValue]);
 
     const onSubmit = async (data) => {
         const getLocalData = JSON.parse(localStorage.getItem('token'));
         const token = getLocalData.token;
-        const clientId = getLocalData?.clientId;
+        const clientId = getLocalData.clientId;
 
         const { name, roomType, maxOccupancy, buildingId, billingProfileId, remarks } = data;
 
         const requestData = {
-            id: id,  // Pass the room ID to update
+            id: id,  // Include the ID in the request body, not in the URL
             name,
             roomType: parseInt(roomType, 10) || 0,
             maxOccupancy: Number(maxOccupancy),
@@ -100,6 +118,7 @@ const EditRoom = () => {
         };
 
         try {
+            // Fixed endpoint - remove ID from URL path
             const response = await axios.put(`${apiUrl}/Room/Update`, requestData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -107,14 +126,13 @@ const EditRoom = () => {
                 }
             });
 
-            toast.success("Room updated successfully");
+            console.log('Update response:', response.data);
+            toast.success("Room updated successfully!");
             setTimeout(() => {
-                navigate('/room');
+                navigate('/building');
             }, 1500);
-
         } catch (error) {
             console.error('Error during submission:', error.response ? error.response.data : error);
-
             if (error.response && error.response.data && error.response.data.errors) {
                 const errorMessages = Object.values(error.response.data.errors).flat();
                 toast.error(errorMessages.join(', '));

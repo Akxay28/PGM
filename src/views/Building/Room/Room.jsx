@@ -76,7 +76,7 @@ const Room = () => {
                     'Content-Type': 'application/json'
                 }
             });
-            console.log(response.data, 'response.data for billing profiles');
+            // console.log(response.data, 'response.data for billing profiles');
 
             // Assuming the billing profile data is also in a 'records' property
             setBillingProfiles(response.data.records || []);
