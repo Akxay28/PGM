@@ -149,7 +149,10 @@ const Building = () => {
                                         </button>
                                         <button
                                             className="btn btn-info me-2"
-                                            onClick={() => navigate(`/editBuilding/${building.id}`)}
+                                            onClick={
+                                                // () => navigate(`/editBuilding/${building.id}`)
+                                                () => alert("Kam chalu he badme ana")
+                                            }
                                         >
                                             Edit
                                         </button>

@@ -16,6 +16,7 @@ const AddRoom = React.lazy(() => import('./views/Building/Room/AddRoom'))
 const EditClient = React.lazy(() => import('./views/ManageClients/EditClient'))
 const EditUsers = React.lazy(() => import('./views/Users/EditUsers'))
 const EditBilling = React.lazy(() => import('./views/Billing/EditBilling'))
+const EditRoom = React.lazy(() => import('./views/Building/Room/EditRoom'))
 const RoleId = React.lazy(() => import('./views/RoleID/RoleID'))
 
 const routes = [
@@ -32,6 +33,7 @@ const routes = [
   { path: '/editClient/:id', name: 'editClient', element: EditClient },
   { path: '/editUsers/:id', name: 'editUsers', element: EditUsers },
   { path: '/editBilling/:id', name: 'editBilling', element: EditBilling },
+  { path: '/editRoom/:id', name: 'editBilling', element: EditRoom },
   { path: '/addUsers', name: 'addUsers', element: AddUsers },
   { path: '/addBilling', name: 'addUsers', element: AddBilling },
   { path: '/addBuilding', name: 'addUsers', element: AddBuilding },

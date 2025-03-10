@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios';
 import config from '../../../config';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
-const AddRoom = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+const EditRoom = () => {
+    const { id } = useParams();  // Get the room ID from the URL params
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm();
     const apiUrl = config.BASE_URL;
     const navigate = useNavigate();
     const [buildings, setBuildings] = useState([]);
@@ -20,6 +21,7 @@ const AddRoom = () => {
             const token = getLocalData.token;
 
             const requestData = { allRecords: true };
+
             try {
                 // Fetch buildings
                 const buildingsResponse = await axios.post(`${apiUrl}/Building/List`, requestData, {
@@ -30,7 +32,6 @@ const AddRoom = () => {
                 });
 
                 if (buildingsResponse.status === 200 && buildingsResponse.data.records) {
-                    console.log("Buildings data:", buildingsResponse.data.records);
                     setBuildings(buildingsResponse.data.records);
                 }
 
@@ -43,13 +44,29 @@ const AddRoom = () => {
                 });
 
                 if (billingResponse.status === 200 && billingResponse.data.records) {
-                    console.log("Billing profiles data:", billingResponse.data.records);
-
-                    // Filter billing profiles to only include active ones
                     const allProfiles = billingResponse.data.records;
                     const activeProfiles = allProfiles.filter(profile => profile.isActive === true);
 
                     setBillingProfiles(activeProfiles);
+                }
+
+                // Fetch existing room data
+                const roomResponse = await axios.get(`${apiUrl}/Room/Get/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (roomResponse.status === 200 && roomResponse.data) {
+                    const roomData = roomResponse.data;
+                    // Prefill the form with the room data
+                    setValue('name', roomData.name);
+                    setValue('roomType', roomData.roomType.toString());
+                    setValue('maxOccupancy', roomData.maxOccupancy);
+                    setValue('buildingId', roomData.buildingId.toString());
+                    setValue('billingProfileId', roomData.billingProfileId ? roomData.billingProfileId.toString() : '');
+                    setValue('remarks', roomData.remarks);
                 }
 
                 setLoading(false);
@@ -61,42 +78,36 @@ const AddRoom = () => {
         };
 
         fetchData();
-    }, [apiUrl]);
+    }, [apiUrl, id]);
 
     const onSubmit = async (data) => {
-        // Getting clientId from local storage
         const getLocalData = JSON.parse(localStorage.getItem('token'));
         const token = getLocalData.token;
         const clientId = getLocalData?.clientId;
 
         const { name, roomType, maxOccupancy, buildingId, billingProfileId, remarks } = data;
 
-        // Create the proper request structure based on the API requirements
         const requestData = {
-            name: name,
+            id: id,  // Pass the room ID to update
+            name,
             roomType: parseInt(roomType, 10) || 0,
             maxOccupancy: Number(maxOccupancy),
             buildingId: Number(buildingId),
             billingProfileId: billingProfileId ? Number(billingProfileId) : null,
-            remarks: remarks,
+            remarks,
             clientId: Number(clientId),
             isActive: true
         };
 
-        console.log(requestData, 'requestData');
-
-        console.log("Request payload:", requestData);
-
         try {
-            const response = await axios.post(`${apiUrl}/Room/Insert`, requestData, {
+            const response = await axios.put(`${apiUrl}/Room/Update`, requestData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
 
-            console.log('API response:', response.data);
-            toast.success("Room added successfully");
+            toast.success("Room updated successfully");
             setTimeout(() => {
                 navigate('/room');
             }, 1500);
@@ -104,12 +115,11 @@ const AddRoom = () => {
         } catch (error) {
             console.error('Error during submission:', error.response ? error.response.data : error);
 
-            // Display more specific error message if available
             if (error.response && error.response.data && error.response.data.errors) {
                 const errorMessages = Object.values(error.response.data.errors).flat();
                 toast.error(errorMessages.join(', '));
             } else {
-                toast.error("Error adding room information");
+                toast.error("Error updating room information");
             }
         }
     };
@@ -118,7 +128,7 @@ const AddRoom = () => {
         <>
             <div><Toaster /></div>
             <div className="container shadow bg-white p-5 rounded">
-                <h1 className="text-center mb-4">Add Room</h1>
+                <h1 className="text-center mb-4">Edit Room</h1>
 
                 {loading ? (
                     <div className="text-center">
@@ -227,7 +237,7 @@ const AddRoom = () => {
                 )}
             </div>
         </>
-    )
-}
+    );
+};
 
-export default AddRoom
+export default EditRoom;
