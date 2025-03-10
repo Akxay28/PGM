@@ -212,6 +212,10 @@ const Room = () => {
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+    const handleBed = () => {
+        alert("bhai badme ana kaam baki he isme");
+        // navigate('/bed');
+    }
     return (
         <>
             <div><Toaster /></div>
@@ -270,7 +274,7 @@ const Room = () => {
                                     <td>{getBillingProfileName(room.billingProfileId)}</td>
                                     <td>{room.maxOccupancy || 'N/A'}</td>
                                     <td>
-                                        <button className={`btn btn-success me-2`}> Bed</button>
+                                        <button className={`btn btn-success me-2`} onClick={handleBed}> Bed</button>
 
                                         <button className="btn btn-info" onClick={() => navigate(`/editRoom/${room.id}`)}>Edit</button>
                                     </td>
