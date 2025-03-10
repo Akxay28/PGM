@@ -57,18 +57,18 @@ const Building = () => {
                 const getLocalData = JSON.parse(localStorage.getItem('token'));
                 const token = getLocalData.token;
 
-                await axios.post(
-                    `${apiUrl}/Building/ChangeStatus`,
-                    { BuildingId: buildingIdToChange },
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    }
-                );
+                // await axios.post(
+                //     `${apiUrl}/Building/ChangeStatus`,
+                //     { BuildingId: buildingIdToChange },
+                //     {
+                //         headers: {
+                //             'Authorization': `Bearer ${token}`,
+                //             'Content-Type': 'application/json'
+                //         }
+                //     }
+                // );
 
-                toast.success("Building status updated successfully!");
+                // toast.success("Building status updated successfully!");
                 closeDialog();
                 fetchBuildings();
             } catch (error) {
@@ -139,7 +139,7 @@ const Building = () => {
                             currentBuildings.map(building => (
                                 <tr key={building.id}>
                                     <td>{building.name}</td>
-                                    <td>{building.billingProfile?.name || 'N/A'}</td>
+                                    <td>{building.billingProfileId || 'N/A'}</td>
                                     <td>
                                         <button
                                             className="btn btn-secondary me-2"

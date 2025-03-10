@@ -9,6 +9,7 @@ const Room = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [rooms, setRooms] = useState([]);
     const [buildings, setBuildings] = useState([]);
+    const [billingProfiles, setBillingProfiles] = useState([]);
     const [selectedBuilding, setSelectedBuilding] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(5);
@@ -20,49 +21,100 @@ const Room = () => {
 
     // Fetch rooms data
     const fetchRooms = async () => {
+        const requestData = { allRecords: true };
         try {
             const getLocalData = JSON.parse(localStorage.getItem('token'));
             const token = getLocalData.token;
 
-            const response = await axios.post(`${apiUrl}/Room/List`, {
+            const response = await axios.post(`${apiUrl}/Room/List`, requestData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
+            console.log(response.data.records, 'response.data for rooms');
 
-            // setRooms(response.data);
+            // Set the rooms state with the records from the API response
+            setRooms(response.data.records || []);
         } catch (error) {
             console.error('Error fetching rooms:', error);
             toast.error("Failed to fetch rooms");
         }
     };
 
-    // Fetch buildings for filter dropdown
+    // Fetch buildings for filter dropdown and to get building names
     const fetchBuildings = async () => {
         try {
-            // const getLocalData = JSON.parse(localStorage.getItem('token'));
-            // const token = getLocalData.token;
+            const getLocalData = JSON.parse(localStorage.getItem('token'));
+            const token = getLocalData.token;
 
-            // const response = await axios.post(`${apiUrl}/Building/List`, {
-            //     headers: {
-            //         'Authorization': `Bearer ${token}`,
-            //         'Content-Type': 'application/json'
-            //     }
-            // });
-            // console.log(response.data, 'response.data on submit');
+            const response = await axios.post(`${apiUrl}/Building/List`, { allRecords: true }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log(response.data, 'response.data for buildings');
 
-            // setBuildings(response.data);
+            // Assuming the building data is also in a 'records' property
+            setBuildings(response.data.records || []);
         } catch (error) {
             console.error('Error fetching buildings:', error);
             toast.error("Failed to fetch buildings");
         }
     };
 
+    // Fetch billing profiles
+    const fetchBillingProfiles = async () => {
+        try {
+            const getLocalData = JSON.parse(localStorage.getItem('token'));
+            const token = getLocalData.token;
+
+            const response = await axios.post(`${apiUrl}/BillingProfile/List`, { allRecords: true }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log(response.data, 'response.data for billing profiles');
+
+            // Assuming the billing profile data is also in a 'records' property
+            setBillingProfiles(response.data.records || []);
+        } catch (error) {
+            console.error('Error fetching billing profiles:', error);
+            toast.error("Failed to fetch billing profiles");
+        }
+    };
+
+    // Get building name by ID
+    const getBuildingName = (buildingId) => {
+        const building = buildings.find(b => b.id === buildingId);
+        return building ? building.name : 'N/A';
+    };
+
+    // Get billing profile name by ID
+    const getBillingProfileName = (profileId) => {
+        const profile = billingProfiles.find(p => p.id === profileId);
+        return profile ? profile.name : 'N/A';
+    };
+
+    // Get room type name
+    const getRoomTypeName = (roomTypeId) => {
+        const roomTypes = {
+            0: 'Standard',
+            1: 'Deluxe',
+            2: 'Suite',
+            3: 'Executive'
+            // Add more room types as needed
+        };
+        return roomTypes[roomTypeId] || 'Unknown';
+    };
+
     // Fetch data when component mounts
     useEffect(() => {
         fetchRooms();
         fetchBuildings();
+        fetchBillingProfiles();
     }, []);
 
     const closeDialog = () => {
@@ -97,8 +149,8 @@ const Room = () => {
         }
     };
 
-    // Handle direct status toggle without confirmation dialog
-    const handleStatusToggle = async (roomId, currentStatus) => {
+    // Handle status change (activate or deactivate)
+    const handleStatusChange = async (roomId, currentStatus) => {
         try {
             const getLocalData = JSON.parse(localStorage.getItem('token'));
             const token = getLocalData.token;
@@ -123,7 +175,8 @@ const Room = () => {
     };
 
     const handleAddRoom = () => {
-        navigate('/addRoom');
+        alert('In progress, come back later');
+        // navigate('/addRoom');
     };
 
     const handleSearchChange = (e) => {
@@ -138,8 +191,8 @@ const Room = () => {
 
     // Filter rooms based on search query and selected building
     const filteredRooms = rooms.filter(room => {
-        const matchesSearch = room.name.toLowerCase().includes(searchQuery);
-        const matchesBuilding = selectedBuilding === '' || room.buildingId.toString() === selectedBuilding;
+        const matchesSearch = room.name?.toLowerCase().includes(searchQuery) || false;
+        const matchesBuilding = selectedBuilding === '' || room.buildingId?.toString() === selectedBuilding;
         return matchesSearch && matchesBuilding;
     });
 
@@ -172,11 +225,11 @@ const Room = () => {
                             onChange={handleBuildingFilterChange}
                         >
                             <option value="">All Buildings</option>
-                            {/* {buildings.map(building => (
+                            {buildings.map(building => (
                                 <option key={building.id} value={building.id}>
                                     {building.name}
                                 </option>
-                            ))} */}
+                            ))}
                         </select>
                     </div>
                     <div className="col-auto">
@@ -193,8 +246,9 @@ const Room = () => {
                             <th>Room Type</th>
                             <th>Building</th>
                             <th>Billing Profile</th>
-
+                            <th>Max Occupancy</th>
                             <th>Actions</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -202,36 +256,26 @@ const Room = () => {
                             currentRooms.map(room => (
                                 <tr key={room.id}>
                                     <td>{room.name}</td>
-                                    <td>{room.roomType || 'N/A'}</td>
-                                    <td>{room.building?.name || 'N/A'}</td>
-                                    <td>{room.billingProfile?.name || 'N/A'}</td>
-                                    <td>{room.beds || 0}</td>
+                                    <td>{getRoomTypeName(room.roomType)}</td>
+                                    <td>{getBuildingName(room.buildingId)}</td>
+                                    <td>{getBillingProfileName(room.billingProfileId)}</td>
+                                    <td>{room.maxOccupancy || 'N/A'}</td>
                                     <td>
                                         <button
-                                            className="btn btn-info me-2"
+                                            className="btn btn-info"
                                             onClick={() => navigate(`/editRoom/${room.id}`)}
                                         >
                                             Edit
                                         </button>
-                                        <div className="form-check form-switch d-inline-block ms-2">
-                                            <input
-                                                className="form-check-input"
-                                                type="checkbox"
-                                                role="switch"
-                                                id={`status-switch-${room.id}`}
-                                                checked={room.isActive}
-                                                onChange={() => handleStatusToggle(room.id, room.isActive)}
-                                            />
-                                            <label className="form-check-label" htmlFor={`status-switch-${room.id}`}>
-                                                {room.isActive ? 'Active' : 'Inactive'}
-                                            </label>
-                                        </div>
+                                    </td>
+                                    <td>
+                                        <button>active</button>
                                     </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="6" className="text-center">No rooms found</td>
+                                <td colSpan="7" className="text-center">No rooms found</td>
                             </tr>
                         )}
                     </tbody>
